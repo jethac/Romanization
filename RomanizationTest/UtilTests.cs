@@ -72,5 +72,27 @@ namespace RomanizationTest
                 Assert.AreEqual(expectedResults[i], result);
             }
         }
+
+        [TestMethod]
+        public void HepburnTradRomanizeNLabial()
+        {
+            string[] testArray = {
+                "にほんご",
+                "せんぱい",
+                "ばんざい"
+            };
+            string[] expectedResults = {
+                "nihongo",
+                "sempai",
+                "banzai"
+            };
+
+            HepburnTraditional ht = new HepburnTraditional();
+            for (int i = 0; i < testArray.Length; i++)
+            {
+                string result = ht.GetRomanized(testArray[i]);
+                Assert.AreEqual(expectedResults[i], result);
+            }
+        }
     }
 }

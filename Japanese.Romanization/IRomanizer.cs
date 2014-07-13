@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Romanization
+namespace Japanese.Romanization
 {
-    interface IRomanizer
+    public interface IRomanizer
     {
-        string GetRomanized(string japanese);
+        string GetRomanized(string hiragana, string kanji = null);
     }
 }
