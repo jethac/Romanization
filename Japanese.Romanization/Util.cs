@@ -16,18 +16,14 @@ namespace Romanization
     }
     public class Util
     {
-        private static char[] kana_ya = {
-            'や',
-            'ゆ',
-            'よ'
-        };
         private static int[] SmallKanaOffsets = { 0, 2, 4, 6, 8, 22, 42, 44, 46, 48 };
-
 
         private struct KanaRange
         {
             public char Start;
             public char End;
+            public int Offset;
+            public int PackCount;
         }
         private struct KanaRangeExt
         {
@@ -48,21 +44,53 @@ namespace Romanization
                 'か',
                 new KanaRange{
                     Start = 'か',
-                    End = 'ご'
+                    End = 'ご',
+                    PackCount = 2,
+                    Offset = 0
+                }
+            },
+            {
+                'が',
+                new KanaRange{
+                    Start = 'か',
+                    End = 'ご',
+                    PackCount = 2,
+                    Offset = 1
                 }
             },
             {
                 'さ',
                 new KanaRange{
                     Start = 'さ',
-                    End = 'ぞ'
+                    End = 'ぞ',
+                    PackCount = 2
+                }
+            },
+            {
+                'ざ',
+                new KanaRange{
+                    Start = 'さ',
+                    End = 'ぞ',
+                    PackCount = 2,
+                    Offset = 1
                 }
             },
             {
                 'た',
                 new KanaRange{
                     Start = 'た',
-                    End = 'ど'
+                    End = 'ど',
+                    PackCount = 2,
+                    Offset = 0
+                }
+            },
+            {
+                'だ',
+                new KanaRange{
+                    Start = 'た',
+                    End = 'ど',
+                    PackCount = 2,
+                    Offset = 1
                 }
             },
             {
@@ -76,7 +104,26 @@ namespace Romanization
                 'は',
                 new KanaRange{
                     Start = 'は',
-                    End = 'ぽ'
+                    End = 'ぽ',
+                    PackCount = 3
+                }
+            },
+            {
+                'ば',
+                new KanaRange{
+                    Start = 'は',
+                    End = 'ぽ',
+                    PackCount = 3,
+                    Offset = 1
+                }
+            },
+            {
+                'ぱ',
+                new KanaRange{
+                    Start = 'は',
+                    End = 'ぽ',
+                    PackCount = 3,
+                    Offset = 2
                 }
             },
             {
@@ -144,12 +191,34 @@ namespace Romanization
             Kana type = IsKana(ch, false);
             if (type == Kana.NotKana) return result;
 
+            int KatakanaOffset = (type == Kana.Katakana ? KatakanaRange.Start - HiraganaRange.Start : 0);
+
             bool found = false;
             foreach (KeyValuePair<char, KanaRange> kvp in ColumnMappings)
 	        {
-                found =
-                    ch >= kvp.Value.Start + (type==Kana.Katakana? KatakanaRange.Start - HiraganaRange.Start : 0) &&
-                    ch <= kvp.Value.End + (type == Kana.Katakana ? KatakanaRange.Start - HiraganaRange.Start : 0);
+                if (kvp.Value.PackCount == 0)
+                {
+                    found =
+                        ch >= kvp.Value.Start + KatakanaOffset &&
+                        ch <= kvp.Value.End + KatakanaOffset;
+                }
+                else {
+                    // Can't use a range check.
+                    for (int i = (int)kvp.Value.Start + kvp.Value.Offset + KatakanaOffset; i <= (int)kvp.Value.End + KatakanaOffset; i += kvp.Value.PackCount)
+                    {
+                        found = (Char.Equals(ch, (char)i));
+                        bool ta = Char.Equals(kvp.Key, 'た');
+                        bool da = Char.Equals(kvp.Key, 'だ');
+
+                        // Special case handling for ta/da
+                        if (ta && Char.Equals((char)i, 'っ')) {
+                            i -= 1; // don't retest
+                        } else if (da && Char.Equals((char)i, 'つ')) {
+                            i -= 1; // don't retest
+                        }
+                        if (found) break;
+                    }
+                }
                 if (found)
                 {
                     result = kvp.Key;
