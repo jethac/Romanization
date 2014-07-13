@@ -127,10 +127,24 @@ namespace Romanization
                 }
             },
             {
+                'ま',
+                new KanaRange{
+                    Start = 'ま',
+                    End = 'も'
+                }
+            },
+            {
                 'ら',
                 new KanaRange{
                     Start = 'ら',
                     End = 'ろ'
+                }
+            },
+            {
+                'や',
+                new KanaRange{
+                    Start = 'ゃ',
+                    End = 'よ'
                 }
             },
             {
@@ -244,6 +258,27 @@ namespace Romanization
 
             return rval;
         }
+
+        /** Whether or not the given kana is a labial consonant (b-, p-, or m-); needed for
+         *  modified Hepburn romanization.
+         *  
+         *  @param char ch  The character to test.
+         *  @return bool    Whether the character is a labial consonant. Returns false if the
+         *                  character isn't kana in the first place.
+         */
+        public static bool IsLabialConsonant(char ch)
+        {
+            bool rval = false;
+
+            if (IsKana(ch) == Kana.NotKana) {
+                return false;
+            }
+            char col = GetColumn(ch);
+            rval = Char.Equals(col, 'ば') || Char.Equals(col, 'ぱ') || Char.Equals(col, 'ま');
+
+            return rval;
+        }
+    
     }
 }
 }
