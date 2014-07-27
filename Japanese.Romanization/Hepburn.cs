@@ -92,30 +92,42 @@ namespace Japanese.Romanization
             {'ん', "n"}
         };
 
-        public string GetRomanized(string hiragana, string kanji = null)
+        public string GetRomanized(string hiragana) {
+            return this.GetRomanized(hiragana, null, null);
+        }
+        public string GetRomanized(string hiragana, Dictionary<char, string> kanjimappings = null, string kanji = null)
         {
             StringBuilder sb = new StringBuilder(1024);
             sb.Clear();
 
-            for (int i = 0; i < hiragana.Length; i++)
-            {
-                if (Char.Equals(hiragana[i], 'ん'))
+            bool bUseKanjiHints = false;
+            bUseKanjiHints = kanji != null && kanjimappings != null;
+
+            if (bUseKanjiHints) {
+
+            } else {
+                for (int i = 0; i < hiragana.Length; i++)
                 {
-                    if (i < hiragana.Length - 1 && Util.IsLabialConsonant(hiragana[i + 1]))
+                    if (Char.Equals(hiragana[i], 'ん'))
                     {
-                        sb.Append("m");
+                        if (i < hiragana.Length - 1 && Util.IsLabialConsonant(hiragana[i + 1]))
+                        {
+                            sb.Append("m");
+                        }
+                        else
+                        {
+                            sb.Append(mappings[hiragana[i]]);
+                        }
+                    }
+                    else if (Util.IsSmallKana(hiragana[i]))
+                    {
+                        sb.Remove(sb.Length - 1, 1);
+                        sb.Append(mappings[(char)(hiragana[i] + 1)]);
                     }
                     else
                     {
                         sb.Append(mappings[hiragana[i]]);
                     }
-                }
-                else if (Util.IsSmallKana(hiragana[i]))
-                {
-                    sb.Remove(sb.Length, 1);
-                    sb.Append(mappings[(char)(hiragana[i] + 1)]);
-                } else {
-                    sb.Append(mappings[hiragana[i]]);
                 }
             }
 

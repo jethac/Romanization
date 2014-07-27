@@ -16,7 +16,18 @@ namespace Romanization
     }
     public class Util
     {
-        private static int[] SmallKanaOffsets = { 0, 2, 4, 6, 8, 22, 42, 44, 46, 48 };
+        private static int[] SmallKanaOffsets = { 
+            0x0,
+            0x2,
+            0x4,
+            0x6,
+            0x8,
+            0x22,
+            0x42,
+            0x44,
+            0x46,
+            0x48
+        };
 
         private struct KanaRange
         {
@@ -253,7 +264,10 @@ namespace Romanization
             foreach (int offset in SmallKanaOffsets)
             {
                 rval = Char.Equals(ch, (char)(HiraganaRange.Start + offset + typeoffset));
-                break;
+                if (rval)
+                {
+                    break;
+                }
             }
 
             return rval;

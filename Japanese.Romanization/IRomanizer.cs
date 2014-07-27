@@ -8,6 +8,7 @@ namespace Japanese.Romanization
 {
     public interface IRomanizer
     {
-        string GetRomanized(string hiragana, string kanji = null);
+        string GetRomanized(string hiragana);
+        string GetRomanized(string hiragana, Dictionary<char, string> kanjimappings, string kanji = null);
     }
 }
