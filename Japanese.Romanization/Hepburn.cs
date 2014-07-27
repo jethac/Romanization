@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Japanese.Romanization
 {
@@ -91,6 +92,12 @@ namespace Japanese.Romanization
             {'を', "wo"},
             {'ん', "n"}
         };
+        
+        private string[] LongVowelPermutations = {
+            "uu",
+            "oo",
+            "ou"
+                                                 };
 
         public string GetRomanized(string hiragana) {
             return this.GetRomanized(hiragana, null, null);
@@ -104,6 +111,62 @@ namespace Japanese.Romanization
             bUseKanjiHints = kanji != null && kanjimappings != null;
 
             if (bUseKanjiHints) {
+                // in kanji hint mode, split the hiragana string.
+                // @todo: less dumb
+                Dictionary<string, bool> substrings = new Dictionary<string, bool>();
+                StringBuilder sb_substr = new StringBuilder(24);
+                sb_substr.Clear();
+                foreach (char ch in kanji)
+                {
+                    // is this a kanji?
+                    bool bNotKana = Util.IsKana(ch) == Kana.NotKana;
+                    if (bNotKana)
+                    {
+                        // this is a kanji.
+                        // flush the substring stringbuilder and add the 
+                        // contents to the substring list.
+                        if (sb_substr.Length > 0) {
+                            substrings.Add(sb_substr.ToString(), false);
+                            sb_substr.Clear();
+                        }
+
+                        // add the reading for the kanji to the substring list.
+                        substrings.Add(kanjimappings[ch], true);
+                    }
+                    else {
+                        sb_substr.Append(ch);
+                    }
+                }
+                if (sb_substr.Length > 0)
+                {
+                    substrings.Add(sb_substr.ToString(), false);
+                    sb_substr.Clear();
+                }
+
+                // now, do the romaji calc.
+                foreach (KeyValuePair<string, bool> kvp in substrings)
+                {
+                    string thisromaji = this.GetRomanized(kvp.Key);
+
+                    if (kvp.Value && thisromaji.Length > 1)
+                    {
+                        // this is kanji
+                        bool bLongEndingVowel =
+                            LongVowelPermutations.Contains(
+                                thisromaji.Substring(
+                                    thisromaji.Length - 2,
+                                    2
+                                )
+                            );
+                        //Trace.WriteLine(String.Format("long ending vowel: {0} ({1})", bLongEndingVowel, thisromaji));
+
+                        if (bLongEndingVowel) {
+                            thisromaji = Util.WithMacron(thisromaji);
+                        }
+                    }
+
+                    sb.Append(thisromaji);
+                }
 
             } else {
                 for (int i = 0; i < hiragana.Length; i++)

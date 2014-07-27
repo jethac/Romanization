@@ -209,6 +209,14 @@ namespace Romanization
             bool rval = ch >= range.Start && (ch <= range.End || (extendedRange && ch <= range.EndExtended));
             return rval;
         }
+        public static string WithMacron(char ch)
+        {
+            return String.Format("{0}{1}", ch, (char)0x304);
+        }
+        public static string WithMacron(string str)
+        {
+            return String.Format("{0}{1}", str.Substring(0, str.Length - 1), (char)0x304);
+        }
 
         public static char GetColumn(char ch) {
             char result = 'A';
