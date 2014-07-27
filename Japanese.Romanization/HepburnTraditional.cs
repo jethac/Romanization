@@ -185,7 +185,17 @@ namespace Japanese.Romanization
                     else if (Util.IsSmallKana(hiragana[i]))
                     {
                         sb.Remove(sb.Length - 1, 1);
-                        sb.Append(mappings[(char)(hiragana[i] + 1)]);
+
+                        // wait, let's quickly see if the ending letter is j
+                        if (Char.Equals('j', sb[sb.Length - 1]))
+                        {
+                            // omit the 'y'
+                            sb.Append(mappings[(char)(hiragana[i] + 1)][1]);
+                        }
+                        else
+                        {
+                            sb.Append(mappings[(char)(hiragana[i] + 1)]);
+                        }
                     }
                     else
                     {
