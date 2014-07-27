@@ -25,8 +25,7 @@ namespace Romanization
             0x22,
             0x42,
             0x44,
-            0x46,
-            0x48
+            0x46
         };
 
         private struct KanaRange
@@ -167,6 +166,13 @@ namespace Romanization
             },
         };
 
+        private static char[] aiueoWithMacrons = {
+            (char)0x0101,
+            (char)0x012B,
+            (char)0x016B,
+            (char)0x0113,
+            (char)0x014D
+        };
 
         private static KanaRangeExt HiraganaRange = new KanaRangeExt
         {
@@ -209,13 +215,34 @@ namespace Romanization
             bool rval = ch >= range.Start && (ch <= range.End || (extendedRange && ch <= range.EndExtended));
             return rval;
         }
-        public static string WithMacron(char ch)
+        public static char WithMacron(char ch)
         {
-            return String.Format("{0}{1}", ch, (char)0x304);
+            char rval = ' ';
+            switch (ch)
+            {
+                case 'a':
+                    rval = aiueoWithMacrons[0];
+                    break;
+                case 'i':
+                    rval = aiueoWithMacrons[1];
+                    break;
+                case 'u':
+                    rval = aiueoWithMacrons[2];
+                    break;
+                case 'e':
+                    rval = aiueoWithMacrons[3];
+                    break;
+                case 'o':
+                    rval = aiueoWithMacrons[4];
+                    break;
+                default:
+                    break;
+            }
+            return rval;
         }
         public static string WithMacron(string str)
         {
-            return String.Format("{0}{1}", str.Substring(0, str.Length - 1), (char)0x304);
+            return String.Format("{0}{1}", str.Substring(0, str.Length - 2), WithMacron(str.Last()));
         }
 
         public static char GetColumn(char ch) {

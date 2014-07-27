@@ -7,7 +7,8 @@ using System.Diagnostics;
 
 namespace Japanese.Romanization
 {
-    /** Traditional Hepburn romanizer. Currently very, *very* naive and incomplete.
+    /** Traditional Hepburn romanizer. Mostly complete for native japanese words;
+     *  needs katakana support (but that shouldn't be hard).
      */
     public class HepburnTraditional : IRomanizer
     {
@@ -99,10 +100,14 @@ namespace Japanese.Romanization
             "ou"
                                                  };
 
+        public string GetRomanized(WordDefinition wd)
+        {
+            return this.GetRomanized(wd.Phonetic, wd.Kanji, wd.Written);
+        }
         public string GetRomanized(string hiragana) {
             return this.GetRomanized(hiragana, null, null);
         }
-        public string GetRomanized(string hiragana, Dictionary<char, string> kanjimappings = null, string kanji = null)
+        private string GetRomanized(string hiragana, Dictionary<char, string> kanjimappings = null, string kanji = null)
         {
             StringBuilder sb = new StringBuilder(1024);
             sb.Clear();
@@ -110,6 +115,7 @@ namespace Japanese.Romanization
             bool bUseKanjiHints = false;
             bUseKanjiHints = kanji != null && kanjimappings != null;
 
+            #region kanji
             if (bUseKanjiHints) {
                 // in kanji hint mode, split the hiragana string.
                 // @todo: less dumb
@@ -168,7 +174,10 @@ namespace Japanese.Romanization
                     sb.Append(thisromaji);
                 }
 
-            } else {
+            }
+            #endregion
+            #region justkana
+            else {
                 for (int i = 0; i < hiragana.Length; i++)
                 {
                     if (Char.Equals(hiragana[i], 'ん'))
@@ -202,7 +211,16 @@ namespace Japanese.Romanization
                         sb.Append(mappings[hiragana[i]]);
                     }
                 }
+
+                // now that we've done all of that...
+                // we have no word boundary information, so...
+                if (!String.Equals("mizuumi", sb.ToString())) {
+                    sb.Replace("uu", Util.WithMacron('u').ToString());
+                    sb.Replace("ou", Util.WithMacron('o').ToString());
+                    sb.Replace("oo", Util.WithMacron('o').ToString());
+                }
             }
+            #endregion
 
             return sb.ToString();
         }
