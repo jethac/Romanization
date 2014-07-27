@@ -39,5 +39,16 @@ namespace Japanese.Romanization
             Assert.AreEqual("jaaku", ht.GetRomanized(wd_1.Phonetic, wd_1.Kanji, wd_1.Written));
             Assert.AreEqual("obaasan", ht.GetRomanized(wd_2.Phonetic, wd_2.Kanji, wd_2.Written));
         }
+
+        [TestMethod]
+        public void RomanizeLongII()
+        {
+            WordDefinition wd_1 = new Japanese.WordDefinition("お兄さん", "おにいさん", new Dictionary<char, string>() { { '兄', "にい" } });
+            WordDefinition wd_2 = new Japanese.WordDefinition("灰色", "はいいろ", new Dictionary<char, string>() { { '灰', "はい" }, { '色', "いろ" } });
+
+            HepburnTraditional ht = new HepburnTraditional();
+            Assert.AreEqual("oniisan", ht.GetRomanized(wd_1.Phonetic, wd_1.Kanji, wd_1.Written));
+            Assert.AreEqual("haiiro", ht.GetRomanized(wd_2.Phonetic, wd_2.Kanji, wd_2.Written));
+        }
     }
 }
